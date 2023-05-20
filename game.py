@@ -339,4 +339,112 @@ def the_game():
                 if alpha >= beta:
                     break
             return column, value
+        
+        # end the game which will close the window eventually
+    def end_game():
+        global game_over
+        game_over = True
+        print(game_over)
+
+    
+    # various state tracker variables taht use the above fucntions
+    # -------------------------------
+
+    # initializing the board
+    board = create_board()
+    print_board(board)
+    # initially nobody has won yet
+    game_over = False
+
+    # initially the game is not over - this is used for GUI quirks
+    not_over = True
+
+    # initial turn is random
+    turn = random.randint(AI_TURN2, AI_TURN)
+
+    # initializing pygame
+    pygame.init()
+
+    # size of one game location
+    SQUARESIZE = 100
+
+    # dimensions for pygame GUI
+    width = COLS * SQUARESIZE
+    height = (ROWS + 1) * SQUARESIZE
+    circle_radius = int(SQUARESIZE/2 - 5)
+    size = (width, height)
+    screen = pygame.display.set_mode(size)
+
+    # font for win message
+    my_font = pygame.font.SysFont("monospace", 75)
+
+    # draw GUI
+    draw_board(board)
+    pygame.display.update()
+
+
+    # game loop
+    # -------------------------------
+
+    # loop that runs while the game_over variable is false,
+    # i.e., someone hasn't placed 4 in a row yet
+    while not game_over:
+
+        # for every player event
+        for event in pygame.event.get():
+
+            # if player clses the window
+            if event.type == pygame.QUIT:
+                sys.exit()
+
+            # ask for AI 2 inupt
+            if turn == AI_TURN2 and not game_over and not_over:
+                # the column to drop in is found using minimax
+                col, minimax_score2 = minimax2(board, 5, -math.inf, math.inf, True)
+                if is_valid_location(board, col):
+                    row = get_next_open_row(board, col)
+                    drop_piece(board, row, col, AI_PIECE2)
+                    if winning_move(board, AI_PIECE2):
+                        print("PLAYER 1 WINS!")
+                        label = my_font.render("PLAYER 1 WINS!", 1, RED)
+                        screen.blit(label, (40, 10))
+                        not_over = False
+                        t = Timer(1.0, end_game)
+                        t.start()
+                    print_board(board)
+                    draw_board(board) 
+
+                    # increment turn by 1
+                    turn += 1
+
+                     # this will alternate between 0 and 1 withe very turn
+                    turn = turn % 2 
+
+            pygame.display.update()
+
+                        
+        # if its the AI's turn
+        if turn == AI_TURN and not game_over and not_over:
+
+            # the column to drop in is found using minimax
+            col, minimax_score = minimax(board, 5, -math.inf, math.inf, True)
+
+            if is_valid_location(board, col):
+                pygame.time.wait(50)
+                row = get_next_open_row(board, col)
+                drop_piece(board, row, col, AI_PIECE)
+                if winning_move(board, AI_PIECE):
+                    print("PLAYER 2 WINS!")
+                    label = my_font.render("PLAYER 2 WINS!", 1, YELLOW)
+                    screen.blit(label, (40, 10))
+                    not_over = False
+                    t = Timer(1.0, end_game)
+                    t.start()
+            print_board(board)
+            draw_board(board)    
+
+            # increment turn by 1
+            turn += 1
+            # this will alternate between 0 and 1 withe very turn
+            turn = turn % 2
 
