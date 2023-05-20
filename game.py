@@ -200,7 +200,7 @@ def the_game():
 
         return score
     
-        def minimax(board, depth, alpha, beta, maximizing_player):
+    def minimax(board, depth, alpha, beta, maximizing_player):
 
         # all valid locations on the board
         valid_locations = get_valid_locations(board)
